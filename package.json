@@ -1,0 +1,12 @@
+{
+  "name": "vision-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "http-server public -p 8080 -a 0.0.0.0 -c-1 --cors",
+    "start:prod": "http-server public -p 80 -a 0.0.0.0 --gzip",
+    "start:https": "http-server public -p 443 -a 0.0.0.0 -S -C cert.pem -K key.pem"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

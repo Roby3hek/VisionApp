@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionApp - Технологии компьютерного зрения</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="libs/opencv.js" async></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-eye"></i> VisionApp</h1>
+            <p class="subtitle">Технологии компьютерного зрения - Лабораторная работа</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Левая панель: управление -->
+            <div class="control-panel">
+                <div class="section">
+                    <h3><i class="fas fa-file-upload"></i> Загрузка изображения</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Перетащите изображение или нажмите для выбора</p>
+                        <input type="file" id="fileInput" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><i class="fas fa-info-circle"></i> Информация</h3>
+                    <div class="info-box" id="infoBox">
+                        <p>Загрузите изображение для просмотра информации</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><i class="fas fa-sliders-h"></i> Основные операции</h3>
+                    <button id="grayscaleBtn" class="btn operation-btn">
+                        <i class="fas fa-moon"></i> В градации серого
+                    </button>
+                    <button id="histogramBtn" class="btn operation-btn">
+                        <i class="fas fa-chart-bar"></i> Гистограмма
+                    </button>
+                    <button id="resetBtn" class="btn operation-btn reset">
+                        <i class="fas fa-undo"></i> Сбросить
+                    </button>
+                </div>
+
+                <div class="section">
+                    <h3><i class="fas fa-adjust"></i> Коррекция</h3>
+                    <div class="slider-group">
+                        <label>Яркость: <span id="brightnessValue">100%</span></label>
+                        <input type="range" id="brightnessSlider" min="0" max="200" value="100">
+                    </div>
+                    <div class="slider-group">
+                        <label>Контраст: <span id="contrastValue">100%</span></label>
+                        <input type="range" id="contrastSlider" min="0" max="200" value="100">
+                    </div>
+                    <div class="slider-group">
+                        <label>Насыщенность: <span id="saturationValue">100%</span></label>
+                        <input type="range" id="saturationSlider" min="0" max="200" value="100">
+                    </div>
+                    <button id="applyCorrectionBtn" class="btn">
+                        <i class="fas fa-check"></i> Применить коррекцию
+                    </button>
+                </div>
+
+                <div class="section">
+                    <h3><i class="fas fa-filter"></i> Фильтры и эффекты</h3>
+                    <div class="filters-grid">
+                        <button class="filter-btn" data-filter="sharpen">
+                            <i class="fas fa-search-plus"></i> Повышение резкости
+                        </button>
+                        <button class="filter-btn" data-filter="motionBlur">
+                            <i class="fas fa-running"></i> Размытие в движении
+                        </button>
+                        <button class="filter-btn" data-filter="median">
+                            <i class="fas fa-stethoscope"></i> Медианный фильтр
+                        </button>
+                        <button class="filter-btn" data-filter="gaussian">
+                            <i class="fas fa-cloud"></i> Гауссово размытие
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><i class="fas fa-draw-polygon"></i> Детекция границ</h3>
+                    <div class="filters-grid">
+                        <button class="filter-btn" data-filter="canny">
+                            <i class="fas fa-project-diagram"></i> Детектор Кэнни
+                        </button>
+                        <button class="filter-btn" data-filter="roberts">
+                            <i class="fas fa-border-style"></i> Оператор Робертса
+                        </button>
+                        <button class="filter-btn" data-filter="sobel">
+                            <i class="fas fa-border-all"></i> Оператор Собеля
+                        </button>
+                        <button class="filter-btn" data-filter="laplacian">
+                            <i class="fas fa-vector-square"></i> Лапласиан
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><i class="fas fa-download"></i> Сохранение</h3>
+                    <button id="saveBtn" class="btn save-btn">
+                        <i class="fas fa-save"></i> Сохранить результат
+                    </button>
+                </div>
+            </div>
+
+            <!-- Правая панель: изображения -->
+            <div class="image-panel">
+                <div class="image-container">
+                    <h3><i class="fas fa-image"></i> Оригинальное изображение</h3>
+                    <div class="canvas-container">
+                        <canvas id="originalCanvas"></canvas>
+                        <div class="placeholder" id="originalPlaceholder">
+                            <i class="fas fa-image"></i>
+                            <p>Оригинальное изображение появится здесь</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-container">
+                    <h3><i class="fas fa-magic"></i> Обработанное изображение</h3>
+                    <div class="canvas-container">
+                        <canvas id="processedCanvas"></canvas>
+                        <div class="placeholder" id="processedPlaceholder">
+                            <i class="fas fa-cogs"></i>
+                            <p>Результат обработки появится здесь</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно для гистограммы -->
+        <div id="histogramModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-chart-bar"></i> Гистограмма изображения</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="histogram-controls">
+                        <button class="btn small" id="histogramGrayscale">Серый</button>
+                        <button class="btn small" id="histogramRGB">RGB</button>
+                        <button class="btn small" id="histogramRed">Красный</button>
+                        <button class="btn small" id="histogramGreen">Зеленый</button>
+                        <button class="btn small" id="histogramBlue">Синий</button>
+                    </div>
+                    <canvas id="histogramChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+        <footer>
+            <div class="status-bar" id="statusBar">
+                <i class="fas fa-check-circle"></i> Готов к работе
+            </div>
+            <div class="footer-info">
+                <p><i class="fas fa-user-graduate"></i> Студент: Туманян Робэн Александрович</p>
+                <p><i class="fas fa-book"></i> Дисциплина: Технологии компьютерного зрения</p>
+                <p><i class="fas fa-university"></i> СГТУ им. Гагарина Ю.А.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

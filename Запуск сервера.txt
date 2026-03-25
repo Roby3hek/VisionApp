@@ -1,0 +1,2 @@
+cd C:\vision-app
+npx http-server ./public -p 3000 -a 0.0.0.0 -c-1 --cors
